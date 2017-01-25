@@ -1,0 +1,25 @@
+                    _            
+                   | |           
+   __ _  ___   __ _| |_ ___  ___ 
+  / _` |/ _ \ / _` | __/ _ \/ _ \
+ | (_| | (_) | (_| | ||  __/  __/
+  \__, |\___/ \__,_|\__\___|\___|
+   __/ |                         
+  |___/     templating engine    
+
+
+goatee is a lua-based templating engine.
+
+It has common syntax used across most templating engines. goatee also
+supports including external template files and lua files.
+
+The engine itself is written in lua, but a C wrapper is used around the lua
+code, effectively making it act like C code (the lua file that contains the
+templating engine is embedded into the C library at compile-time).
+
+This allows for easy bindings to most languages and for everything to be
+packaged into a single archive, without any other dependencies.
+
+Issues, suggestions, bugfixes, and other contributions are welcome!
+
+For copyright/licensing information, please see the file LICENSE.

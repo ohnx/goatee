@@ -1,0 +1,8 @@
+Provided that your computer has the required dependencies (gcc, make), it is
+simple to compile goatee.
+
+Type `make` in the root directory (where this file is located) in order to
+compile goatee.
+
+If you would like to verify that goatee has compiled correctly, you can run
+`make tests`.
