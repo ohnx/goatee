@@ -1,25 +1,42 @@
-                    _            
-                   | |           
-   __ _  ___   __ _| |_ ___  ___ 
-  / _` |/ _ \ / _` | __/ _ \/ _ \
- | (_| | (_) | (_| | ||  __/  __/
-  \__, |\___/ \__,_|\__\___|\___|
-   __/ |                         
-  |___/     templating engine    
+                                        _            
+                                       | |           
+                       __ _  ___   __ _| |_ ___  ___ 
+                      / _` |/ _ \ / _` | __/ _ \/ _ \
+                     | (_| | (_) | (_| | ||  __/  __/
+                      \__, |\___/ \__,_|\__\___|\___|                           
+                       __/ |                         
+                      |___/             by ohnx      
+                      
+                       a lua-based templating engine
 
+    ABOUT
+        goatee is a lua-based templating engine.
 
-goatee is a lua-based templating engine.
+        It has common syntax used across most templating engines.
+        goatee also supports including external template files and
+        lua files.
 
-It has common syntax used across most templating engines. goatee also
-supports including external template files and lua files.
+        goatee parses input strings into lua code, and then calls
+        the lua API to run the code.
+        
+        goatee comes in two forms - a library to integrate tightly
+        with existing code, or an executable that, with enough
+        configuration, can work completely standalone.
 
-The engine itself is written in lua, but a C wrapper is used around the lua
-code, effectively making it act like C code (the lua file that contains the
-templating engine is embedded into the C library at compile-time).
+    BUILDING
+        Run `make` on systems with make and gcc. This will generate
+        the main library file `libgoatee.a`. To generate the
+        executable that can be used, you can run `make exec`. This
+        command will generate the file `goatee` in the root
+        directory. Run it for more information on how to use it.
 
-This allows for easy bindings to most languages and for everything to be
-packaged into a single archive, without any other dependencies.
+    TESTING
+        goatee also has some tests available. Run `make test` to
+        try them.
 
-Issues, suggestions, bugfixes, and other contributions are welcome!
+    CONTRIBUTING
+        Issues, suggestions, bugfixes, and other contributions are
+        welcome!
 
-For copyright/licensing information, please see the file LICENSE.
+    LICENSE
+        MIT-licensed, see the LICENSE file.

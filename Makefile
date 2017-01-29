@@ -1,41 +1,87 @@
-INCLUDES=-I lua/
+INCLUDES=-Iinclude/ -Ilibs/lua/src -Ilibs/libstring/include
 CFLAGS=$(INCLUDES) -Wall -Werror -pedantic
-LIBFLAGS=-Llua -llua -lm -ldl
-OBJ=objs/luat_file.o
-
 LUA_VERSION=5.2.4
+LIBFLAGS=-Llibs/ -lstring -llua -lm -ldl
 
-default: libgoatee.a
+OBJ=objs/goatee_gen.o
+OUTPUT=libgoatee.a
+
+default: $(OUTPUT)
 debug: CFLAGS += -g -O0 -D__DEBUG
-debug: libgoatee.a
+debug: $(OUTPUT)
+
+
+################################################################################
+#                                LIBRARY STUFF                                 #
+################################################################################
 
 # lua 5.3.3
-lua:
-	curl -R -O http://www.lua.org/ftp/lua-$(LUA_VERSION).tar.gz
-	tar zxf lua-$(LUA_VERSION).tar.gz
-	rm lua-$(LUA_VERSION).tar.gz
-	mv lua-$(LUA_VERSION) lua
-	cd lua; make generic
-	cp lua/src/*.a lua/
-	cp lua/src/luac lua/
+lua: libs/liblua.a
 
-mkobjs:
-	mkdir -p objs
+libs/liblua.a:
+	@echo "Building lua...";
+	@mkdir -p libs; \
+	cd libs; \
+	if [ ! -d "lua" ]; then \
+	curl -R -O http://www.lua.org/ftp/lua-$(LUA_VERSION).tar.gz; \
+	tar zxf lua-$(LUA_VERSION).tar.gz; \
+	rm lua-$(LUA_VERSION).tar.gz; \
+	mv lua-$(LUA_VERSION) lua; \
+	cd lua; make generic; cd ..; \
+	cp lua/src/*.a .; \
+	cp lua/src/luac .; \
+	cd ../; \
+	rm -f luac; \
+	fi;
+	@cd libs/; \
+	cp lua/src/*.a .; \
+	cp lua/src/luac .;
 
-# requires packages liblua5.2-dev and lua5.2 (5.2 or any version)
-objs/goatee.o: src/goatee.lua
-	mkdir -p objs
-	lua/luac -o objs/goatee.luac src/goatee.lua
-	xxd -i objs/goatee.luac src/goatee.c
-	$(CC) -c -o objs/goatee.o src/goatee.c
+libstring: libs/libstring.a
+
+libs/libstring.a:
+	@echo "Building libstring...";
+	@mkdir -p libs; \
+	cd libs; \
+	if [ ! -d "libstring" ]; then \
+	git clone https://github.com/ohnx/libstring; \
+	cd libstring; \
+	make; \
+	cp libstring.a ..; \
+	fi;
+	@cd libs; \
+	cp libstring/libstring.a .; \
+
+libs: lua libstring
+
+cleanlibs: 
+	rm -f libs/liblua.a libs/libstring.a
+
+
+################################################################################
+#                                SOURCES STUFF                                 #
+################################################################################
 
 objs/%.o: src/%.c
+	@mkdir -p objs/
 	$(CC) -c -o $@ $< $(CFLAGS) $(EXTRA)
 
-libgoatee.a: mkobjs $(OBJ)
-	$(CC) -o $(OUTPUT) $(OBJ) $(LIBFLAGS) $(CFLAGS)
-	-rm -f $(OBJ) objs/luat_file.luac
+$(OUTPUT): libs $(OBJ)
+	ar rcs $(OUTPUT) $(OBJ)
 
 clean:
-	-rm -f $(OBJ) objs/luat_file.luac src/luat_file.c
+	-rm -f $(OBJ)
 	-rm -f $(OUTPUT)
+	-rm -f tests/runner tests/runner.o
+
+
+################################################################################
+#                                 TESTS STUFF                                  #
+################################################################################
+
+tests/runner: debug tests/runner.c
+	$(CC) -c tests/runner.c -o tests/runner.o $(CFLAGS) -g
+	$(CC) tests/runner.o -L. -lgoatee $(LIBFLAGS) -o tests/runner
+
+test: $(OUTPUT) tests/runner
+	tests/runner tests/enginetest.in
