@@ -3,7 +3,7 @@ CFLAGS=$(INCLUDES) -Wall -Werror -pedantic
 LUA_VERSION=5.2.4
 LIBFLAGS=-Llibs/ -lstring -llua -lm -ldl
 
-OBJ=objs/goatee_gen.o
+OBJ=objs/goatee_gen.o objs/goatee_run.o
 OUTPUT=libgoatee.a
 
 default: $(OUTPUT)
@@ -43,12 +43,10 @@ libs/libstring.a:
 	@echo "Building libstring...";
 	@mkdir -p libs; \
 	cd libs; \
-	if [ ! -d "libstring" ]; then \
 	git clone https://github.com/ohnx/libstring; \
 	cd libstring; \
 	make; \
-	cp libstring.a ..; \
-	fi;
+	cp libstring.a ..;
 	@cd libs; \
 	cp libstring/libstring.a .; \
 

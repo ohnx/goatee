@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "goatee_gen.h"
+#include "goatee_run.h"
 
 /*
  * you expect() something to happen.
@@ -38,7 +39,7 @@ char *dumpFile(const char *filename) {
 }
 
 int main(int argc, char *argv[]) {
-    char *in, *out;
+    char *in, *out, *outFinal;
     
     expect(argc == 2, "Invalid # of arguments passed!");
 
@@ -53,9 +54,15 @@ int main(int argc, char *argv[]) {
     /* that's all that's done so far... print out output */
     printf("goatee_gen out:\n%s", out);
     
+    /* generate the output */
+    outFinal = goatee_run(NULL, out);
+    
+    printf("goatee_run out:\n%s", outFinal);
+    
     /* be responsible... free memory */
-    free(in);
+    string_free(in);
     string_free(out);
+    string_free(outFinal);
     
     return 0;
 }

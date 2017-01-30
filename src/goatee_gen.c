@@ -9,23 +9,19 @@ string handle_comment(string all, string in) {
 }
 
 string handle_exec(string all, string in) {
-    all = string_append(all, in);
-    all = string_append(all, "\n");
-    return all;
+    return string_append(all, string_temporary(string_printf("%s\n", in)));
 }
 
 string handle_var(string all, string in) {
-    all = string_append(all, "_ret[#_ret+1] = ");
-    all = string_append(all, in);
-    all = string_append(all, "\n");
-    return all;
+    return string_append(all, string_temporary(
+        string_printf("_ret[#_ret+1] = %s\n", in)
+    ));
 }
 
 string handle_normal(string all, string in) {
-    all = string_append(all, "_ret[#_ret+1] = [[\n");
-    all = string_append(all, in);
-    all = string_append(all, "]]\n");
-    return all;
+    return string_append(all, string_temporary(
+        string_printf("_ret[#_ret+1] = [[\n%s]]\n", in)
+    ));
 }
 
 typedef string(*goatee_handler)(string all, string in);
@@ -113,7 +109,7 @@ string goatee_gen(const string in) {
                 c = strstr(&in[b+2], end);
                 
                 if (c == NULL) {/* could not find! */
-
+                    
                     goto failure;
                 }
                 
