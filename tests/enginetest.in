@@ -1,5 +1,7 @@
-{% foods = {"apple", "chocolate", "cookie", "pear", "tomato", "pineapple", "carrot"} %}
+{+  tests/includetest.lua +}
 I have some foods in my backpack:
 {% for _,v in ipairs(foods) do %}* {{ v }}
 {% end %}
 They are really tasty!
+
+{{ test(4) }}

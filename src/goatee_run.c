@@ -1,14 +1,6 @@
 #include "goatee_run.h"
 
-void setup_basic_table(lua_State *L) {
-    lua_newtable(L);
-    lua_getglobal(L, "ipairs");
-    lua_setfield(L, -2, "ipairs");
-    lua_getglobal(L, "table");
-    lua_setfield(L, -2, "table");
-}
-
-string goatee_run(lua_State *L, const char *in) {
+string goatee_run(lua_State *L, const char *in, goatee_logger *gl) {
     /* the lua_state has just the env that we want to run the template under
      * 
      * stack looks as follows:
@@ -16,16 +8,17 @@ string goatee_run(lua_State *L, const char *in) {
      * -1 env table
      */
     int stackSize, shouldRedo = 0;
-    string out;
+    string out = NULL;
     
     if (L == NULL) {
         shouldRedo = 1;
         L = luaL_newstate();
         luaL_openlibs(L);
+        gl->log(gl, GLL_INFO, "Creating new lua instance");
     }
     
     stackSize = lua_gettop(L);
-    if (stackSize == 0) setup_basic_table(L);
+    if (stackSize == 0) goatee_setup_basic_table(L);
 
     switch(lua_type(L, stackSize)) {
         case LUA_TTABLE:
@@ -33,13 +26,16 @@ string goatee_run(lua_State *L, const char *in) {
             break;
         default:
             /* just push an empty table to stack */
-            setup_basic_table(L);
+            goatee_setup_basic_table(L);
             break;
     }
     
     /* load the template string */
     if (luaL_loadstring(L, in) != 0) {
-        return NULL;
+        out = string_mknew(lua_tostring(L, -1));
+        gl->log(gl, GLL_ERR, out);
+        out = NULL;
+        goto end;
     }
     
     /* rearrange the stack so table is on top
@@ -68,11 +64,15 @@ string goatee_run(lua_State *L, const char *in) {
      * and the env to be set
      */
     if (lua_pcall(L, 0, 1, 0) != 0) {
-        return NULL;
+        out = string_mknew(lua_tostring(L, -1));
+        gl->log(gl, GLL_ERR, out);
+        out = NULL;
+        goto end;
     }
     
     out = string_dup((const string)lua_tostring(L, -1));
-    
+
+end:
     /*
      * Clean up lua if needed
      */

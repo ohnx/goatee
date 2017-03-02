@@ -3,7 +3,7 @@ CFLAGS=$(INCLUDES) -Wall -Werror -pedantic
 LUA_VERSION=5.2.4
 LIBFLAGS=-Llibs/ -lstring -llua -lm -ldl
 
-OBJ=objs/goatee_gen.o objs/goatee_run.o
+OBJ=objs/goatee_gen.o objs/goatee_run.o objs/goatee_cfg.o objs/goatee_logger.o
 OUTPUT=libgoatee.a
 
 default: $(OUTPUT)
@@ -70,16 +70,19 @@ $(OUTPUT): libs $(OBJ)
 clean:
 	-rm -f $(OBJ)
 	-rm -f $(OUTPUT)
-	-rm -f tests/runner tests/runner.o
+	-rm -f goatee
 
 
 ################################################################################
-#                                 TESTS STUFF                                  #
+#                             COMMAND LINE STUFF                               #
 ################################################################################
 
-tests/runner: debug tests/runner.c
-	$(CC) -c tests/runner.c -o tests/runner.o $(CFLAGS) -g
-	$(CC) tests/runner.o -L. -lgoatee $(LIBFLAGS) -o tests/runner
+goatee: $(OUTPUT) objs/goatee_cmdline.o
+	$(CC) objs/goatee_cmdline.o -L. -lgoatee $(LIBFLAGS) -o goatee
 
-test: $(OUTPUT) tests/runner
-	tests/runner tests/enginetest.in
+################################################################################
+#                                 TEST STUFF                                   #
+################################################################################
+
+test: $(OUTPUT) goatee
+	./goatee tests/enginetest.in

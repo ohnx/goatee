@@ -1,5 +1,9 @@
 #include "goatee_gen.h"
 
+string goatee_gen_internal(const string in, int useHeaders);
+
+goatee_logger *gl_gen = NULL;
+
 /**
  * These handler functions need to return all
  * in case the memory address changed
@@ -9,18 +13,45 @@ string handle_comment(string all, string in) {
 }
 
 string handle_exec(string all, string in) {
-    return string_append(all, string_temporary(string_printf("%s\n", in)));
+    /* sing string_appendv here since it creates a new string, allowing us to free it back in main function */
+    return string_append(all, string_temporary(string_appendv(2, in, "\n")));
 }
 
 string handle_var(string all, string in) {
     return string_append(all, string_temporary(
-        string_printf("_ret[#_ret+1] = %s\n", in)
+        string_appendv(3, "_ret[#_ret+1] = ", in, "\n")
+    ));
+}
+
+string handle_include(string all, string in) {
+    string fileIn, tmp, tmp3;
+    char *tmp2;
+    
+    tmp2 = strutil_trim_spaces(in);
+    fileIn = dumpFile(tmp2);
+    
+    tmp3 = string_append("Attemping to load ", tmp2);
+    
+    gl_gen->log(gl_gen, GLL_INFO, tmp3);
+    free(tmp2);
+    string_free(tmp3);
+    
+    if (fileIn == NULL) {
+        gl_gen->log(gl_gen, GLL_WARN, "File not found.");
+        return all;
+    }
+    
+    tmp = goatee_gen_internal(fileIn, 0);
+    string_free(fileIn);
+    
+    return string_append(all, string_temporary(
+        string_appendv(3, "\n", string_temporary(tmp), "\n")
     ));
 }
 
 string handle_normal(string all, string in) {
     return string_append(all, string_temporary(
-        string_printf("_ret[#_ret+1] = [[\n%s]]\n", in)
+        string_appendv(3, "_ret[#_ret+1] = [[\n", in, "]]\n")
     ));
 }
 
@@ -34,10 +65,16 @@ struct {
     {'#', '#', &handle_comment},
     {'%', '%', &handle_exec},
     {'{', '}', &handle_var},
+    {'+', '+', &handle_include},
     {0,0, NULL}
 };
 
-string goatee_gen(const string in) {
+string goatee_gen(const string in, goatee_logger *glin) {
+    gl_gen = glin;
+    return goatee_gen_internal(in, 1);
+}
+
+string goatee_gen_internal(const string in, int useHeaders) {
     string out, tmp;
     char starttag;
     char *c, *bP;
@@ -51,7 +88,7 @@ string goatee_gen(const string in) {
     inL = string_length(in);
 
     /* initial values */
-    out = string_dup("_ret = {}\n");
+    out = useHeaders ? string_mknew("_ret = {}\n") : string_new();
     pos = 0;
     
     while (pos < inL) {
@@ -94,7 +131,7 @@ string goatee_gen(const string in) {
             /* end tag is now in modifiers[i] */
             
             if (starttag == '\0') { /* special case: end of string */
-                
+                gl_gen->log(gl_gen, GLL_ERR, "Unexpected end of string! (expecting close)");
                 goto failure;
             } else if (modifiers[i].start == 0) { /* could not exist... */
                 /* unrecognized starting */
@@ -117,7 +154,7 @@ string goatee_gen(const string in) {
                 tmp = string_copy(tmp, &in[b+2], 0, (c-in)-2-b);
                 out = modifiers[i].handler(out, tmp);
                 string_free(tmp);
-                
+
                 /* done! */
                 pos = c-in+2;
             }
@@ -130,7 +167,7 @@ string goatee_gen(const string in) {
     out = handle_normal(out, tmp);
     string_free(tmp);
     
-    out = string_append(out, "\nreturn table.concat(_ret)\n");
+    if (useHeaders) out = string_append(out, "\nreturn table.concat(_ret)\n");
     
     return out;
 failure:
