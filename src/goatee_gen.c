@@ -9,22 +9,22 @@ struct handlerInfo *modifiers_gen;
  * These handler functions need to return all
  * in case the memory address changed
  */
-static string goatee_gen_handle_comment(string all, string in) {
+string goatee_gen_handle_comment(string all, string in) {
     return all;
 }
 
-static string goatee_gen_handle_exec(string all, string in) {
+string goatee_gen_handle_exec(string all, string in) {
     /* sing string_appendv here since it creates a new string, allowing us to free it back in main function */
     return string_append(all, string_temporary(string_appendv(2, in, "\n")));
 }
 
-static string goatee_gen_handle_var(string all, string in) {
+string goatee_gen_handle_var(string all, string in) {
     return string_append(all, string_temporary(
         string_appendv(3, "_ret[#_ret+1] = ", in, "\n")
     ));
 }
 
-static string goatee_gen_handle_include(string all, string in) {
+string goatee_gen_handle_include(string all, string in) {
     string fileIn, tmp, tmp3;
     char *tmp2;
     

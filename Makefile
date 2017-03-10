@@ -68,7 +68,7 @@ $(OUTPUT): libs $(OBJ)
 	ar rcs $(OUTPUT) $(OBJ)
 
 clean:
-	-rm -f $(OBJ)
+	-rm -f $(OBJ) objs/goatee_cmdline.o
 	-rm -f $(OUTPUT)
 	-rm -f goatee
 

@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     expect(in != NULL, "Could not read file!")
 
     /* generate the template string that will get run through lua */
-    out = goatee_gen(in, gl_cmd);
+    out = goatee_gen(in, NULL, gl_cmd);
     expect(out != NULL, "Failed to compile template into lua code!");
 
     /* that's all that's done so far... print out output */
