@@ -51,8 +51,8 @@ string goatee_run(lua_State *L, const char *in, goatee_logger *gl) {
      *
      * for the next block of code, so we do a little shuffle...
      */
-    lua_pushvalue(L, -2);
-    lua_pushvalue(L, -2);
+    lua_pushvalue(L, -1);
+    lua_pushvalue(L, -3);
     lua_remove(L, -3);
     lua_remove(L, -3);
     
@@ -71,6 +71,9 @@ string goatee_run(lua_State *L, const char *in, goatee_logger *gl) {
     }
     
     out = string_dup((const string)lua_tostring(L, -1));
+
+    /* pop the string */
+    lua_pop(L, 1);
 
 end:
     /*

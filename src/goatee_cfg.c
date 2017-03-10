@@ -1,6 +1,6 @@
 #include "goatee_cfg.h"
 
-string dumpFile(const char *filename) {
+string goatee_dump_file(const char *filename) {
     char *buffer = 0;
     string tmp;
     long length;
@@ -27,7 +27,7 @@ string dumpFile(const char *filename) {
     return tmp;
 }
 
-char *strutil_trim_spaces(const char *in) {
+char *goatee_trim_spaces(const char *in) {
     const char *startLocation;
     int length = 0;
     
@@ -56,7 +56,6 @@ void goatee_setup_basic_table(lua_State *L) {
     lua_getglobal(L, "pairs");
     lua_setfield(L, -2, "pairs");
 }
-
 
 
 /* WARN: GARBAGE CODE */

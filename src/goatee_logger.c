@@ -30,10 +30,10 @@ goatee_logger *goatee_logger_new(goatee_logger_level min_level) {
     return n;
 }
 
-char *logStrings[] = {RESET"["KBLU"INFO"RESET"] ",
-                      RESET"["KYEL"WARN"RESET"] ",
-                      RESET"["KRED"ERRR"RESET"] ",
-                      RESET"["KMAG"FATL"RESET"] "};
+static char *logStrings[] = {RESET"["KBLU"INFO"RESET"] ",
+                             RESET"["KYEL"WARN"RESET"] ",
+                             RESET"["KRED"ERRR"RESET"] ",
+                             RESET"["KMAG"FATL"RESET"] "};
 
 void goatee_logger_destroy(goatee_logger *gl) {
     string_free(gl->messages);
