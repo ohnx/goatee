@@ -66,7 +66,7 @@ static string goatee_gen_handle_normal(string all, string in) {
     ));
 }
 
-struct handlerInfo defaultModifiers[] = {
+static struct handlerInfo defaultModifiers[] = {
     {'#', '#', &goatee_gen_handle_comment},
     {'%', '%', &goatee_gen_handle_exec},
     {'{', '}', &goatee_gen_handle_var},
@@ -77,6 +77,11 @@ struct handlerInfo defaultModifiers[] = {
 string goatee_gen(const string in, struct handlerInfo *modifiers, goatee_logger *glin) {
     gl_gen = glin;
     return goatee_gen_internal(in, modifiers, 1);
+}
+
+string goatee_gen_noHeader(const string in, struct handlerInfo *modifiers, goatee_logger *glin) {
+    gl_gen = glin;
+    return goatee_gen_internal(in, modifiers, 0);
 }
 
 static string goatee_gen_internal(const string in, struct handlerInfo *modifiers, int useHeaders) {

@@ -17,4 +17,5 @@ string goatee_gen_handle_var(string all, string in);
 string goatee_gen_handle_include(string all, string in);
 
 string goatee_gen(const string in, struct handlerInfo *modifiers, goatee_logger *glin);
+string goatee_gen_noHeader(const string in, struct handlerInfo *modifiers, goatee_logger *glin);
 #endif
