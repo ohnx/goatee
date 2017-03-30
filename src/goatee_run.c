@@ -18,17 +18,23 @@ string goatee_run(lua_State *L, const char *in, goatee_logger *gl) {
     }
     
     stackSize = lua_gettop(L);
-    if (stackSize == 0) goatee_setup_basic_table(L);
+    if (stackSize == 0) {
+        goatee_setup_basic_table(L);
+        goto skipTable;
+    }
 
     switch(lua_type(L, stackSize)) {
         case LUA_TTABLE:
-            /* nothing needed to do */
+            /* duplicate table since setupvalue kills it */
+            lua_pushvalue(L, -1);
             break;
         default:
             /* just push an empty table to stack */
             goatee_setup_basic_table(L);
             break;
     }
+    
+    skipTable:
     
     /* load the template string */
     if (luaL_loadstring(L, in) != 0) {

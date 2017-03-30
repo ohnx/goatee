@@ -58,4 +58,3 @@ void goatee_setup_basic_table(lua_State *L) {
     lua_getglobal(L, "tonumber");
     lua_setfield(L, -2, "tonumber");
 }
-
