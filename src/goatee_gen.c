@@ -14,8 +14,7 @@ string goatee_gen_handle_comment(string all, string in) {
 }
 
 string goatee_gen_handle_exec(string all, string in) {
-    /* sing string_appendv here since it creates a new string, allowing us to free it back in main function */
-    return string_append(all, string_temporary(string_appendv(2, in, "\n")));
+    return string_append(all, string_temporary(string_appendnv(2, in, "\n")));
 }
 
 string goatee_gen_handle_var(string all, string in) {
@@ -31,7 +30,7 @@ string goatee_gen_handle_include(string all, string in) {
     tmp2 = goatee_trim_spaces(in);
     fileIn = goatee_dump_file(tmp2);
     
-    tmp3 = string_append("Attemping to load ", tmp2);
+    tmp3 = string_append(string_mknew("Attemping to load "), string_temporary(string_mknew(tmp2)));
     
     if (gl_gen->level <= GLL_INFO) {
         gl_gen->log(gl_gen, GLL_INFO, tmp3);
