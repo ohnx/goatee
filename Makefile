@@ -86,4 +86,4 @@ goatee: $(OUTPUT) objs/goatee_cmdline.o objs/hashmap.o
 ################################################################################
 
 test: debug $(OUTPUT) goatee
-	./goatee tests/enginetest.in
+	./goatee -i tests/enginetest.in
