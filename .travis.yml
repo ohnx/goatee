@@ -1,0 +1,10 @@
+language: c
+compiler:
+  - gcc
+  - clang
+script: make test
+notifications:
+  email: false
+  irc:
+    - "ircs://chat.freenode.net:7070/##ohnx"
+
