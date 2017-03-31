@@ -58,3 +58,42 @@ void goatee_setup_basic_table(lua_State *L) {
     lua_getglobal(L, "tonumber");
     lua_setfield(L, -2, "tonumber");
 }
+
+hashmap *goatee_parse_file(char *in) {
+    hashmap *vars = hashmap_new();
+    char *poseq, *posnl = in, *cpos = in;
+
+    while (1) {
+        /* find next newline */
+        posnl = strchr(posnl, '\n');
+        
+        if (posnl == NULL) { /* none found, look for end of string */
+            posnl = strchr(cpos, '\0'); /* jump to end of string */
+
+            /* find equals sign, if none, return */
+            poseq = strchr(cpos, '=');
+            if (poseq == NULL) return NULL;
+            *poseq = '\0';
+
+            /* add to hashmap */
+            hashmap_put(vars, cpos, poseq+1);
+            break;
+        }
+        
+        /* newline may have been escaped  - NYI
+        if (*(posnl-1) == '\\') {posnl++;continue;}*/
+        *posnl = '\0';
+        
+        /* find equals sign, if none, return */
+        poseq = strchr(cpos, '=');
+        if (poseq == NULL) return NULL;
+        *poseq = '\0';
+        
+        /* add to hashmap */
+        hashmap_put(vars, cpos, poseq+1);
+        cpos = ++posnl;
+    }
+    
+    /* return hashmap */
+    return vars;
+}

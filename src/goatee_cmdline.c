@@ -29,6 +29,7 @@ void print_usage(char *argv[]) {
            "This is a sample command-line tool that provides basic rendering capabilities.\n" \
            "For more information about goatee, see https://masonx.ca/goatee\n");
     printf("-----\nUsage:\n");
+    printf("-h\n\tShow this help message\n");
     printf("-i <filename>\n\tSpecify the input file\n\tIf none, stdin will be used.\n");
     printf("-v\n\tBe verbose (Print logs to stdout even if no error)\n");
     printf("-e\n\tRead environment variables into global table\n");
@@ -104,14 +105,17 @@ int hashmap_iterator_printf(void *context, const char *key, void *value) {
 }
 
 int main(int argc, char *argv[]) {
-    char *in, *out, *outFinal, *fin = NULL, *fparse = NULL, *outFile = NULL;
+    char *in = NULL, *out = NULL, *outFinal = NULL, *fin = NULL, *fparse = NULL, *outFile = NULL;
     int readenv = 0, verbosity = GLL_ERR, onlygen = 0;
     lua_State *L = NULL;
     FILE *of;
     char c;
     
-    while ((c = getopt(argc, argv, "lvef:i:")) != -1) {
+    while ((c = getopt(argc, argv, "hlvef:i:")) != -1) {
         switch (c) {
+        case 'h':
+            print_usage(argv);
+            return 0;
         case 'l':
             onlygen = 1;
             break;
@@ -143,9 +147,11 @@ int main(int argc, char *argv[]) {
         hashmap *envs = hashmap_new();
         char *poseq;
         
-        L = luaL_newstate();
-        luaL_openlibs(L);
-        goatee_setup_basic_table(L);
+        if (!L) {
+            L = luaL_newstate();
+            luaL_openlibs(L);
+            goatee_setup_basic_table(L);
+        }
         
         while (environ[i]) {
             poseq = strchr(environ[i], '=');
@@ -162,8 +168,24 @@ int main(int argc, char *argv[]) {
     }
     
     if (fin) {
-        gl_cmd->log(gl_cmd, GLL_FATAL, "Sorry, input from files is NYI.");
-        goto end;
+        char *tmp;
+        hashmap *vars;
+
+        if (!L) {
+            L = luaL_newstate();
+            luaL_openlibs(L);
+            goatee_setup_basic_table(L);
+        }
+
+        tmp = goatee_dump_file(fin);
+        expect(tmp != NULL, "Could not read file!");
+
+        vars = goatee_parse_file(tmp);        
+        expect(vars != NULL, "Failed reading file!");
+        
+        hashmap_iterate(vars, hashmap_iterator_printf, L);
+        hashmap_destroy(vars);
+        string_free(tmp);
     }
     
     if (!fparse) {
@@ -188,7 +210,7 @@ int main(int argc, char *argv[]) {
     } else {
         /* read in file */
         in = goatee_dump_file(fparse);
-        expect(in != NULL, "Could not read file!")
+        expect(in != NULL, "Could not read file!");
     }
     
     /* set output file (default NULL) */
