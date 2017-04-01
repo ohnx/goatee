@@ -7,7 +7,7 @@
 #include "goatee_cfg.h"
 #include "hashmap.h"
 
-#define __VERSION "v1.0.0 (grumpy cat)"
+#define __VERSION "v1.1.0 (happy llama)"
 
 extern char **environ;
 
@@ -34,6 +34,8 @@ void print_usage(char *argv[]) {
     printf("-v\n\tBe verbose (Print logs to stdout even if no error)\n");
     printf("-e\n\tRead environment variables into global table\n");
     printf("-l\n\tPrint only the output lua code from goatee_gen; do not run it.\n");
+    printf("-u\n\tUnsafe mode; allow all standard lua functions to be run from without a template.\n"\
+           "\tTemplates normally run under a sandboxed environment; for help, please see https://masonx.ca/goatee\n");
     printf("-f <filename>\n\tRead contents of file into a global table.\n" \
            "\tContents of the file should follow the format; for help, please see https://masonx.ca/goatee\n");
     printf("<filename>\n\tOutput filename.\n\tIf none, stdout will be used.\n");
@@ -106,12 +108,12 @@ int hashmap_iterator_printf(void *context, const char *key, void *value) {
 
 int main(int argc, char *argv[]) {
     char *in = NULL, *out = NULL, *outFinal = NULL, *fin = NULL, *fparse = NULL, *outFile = NULL;
-    int readenv = 0, verbosity = GLL_ERR, onlygen = 0;
+    int readenv = 0, verbosity = GLL_ERR, onlygen = 0, unsafe = 0;
     lua_State *L = NULL;
     FILE *of;
     char c;
     
-    while ((c = getopt(argc, argv, "hlvef:i:")) != -1) {
+    while ((c = getopt(argc, argv, "hluvef:i:")) != -1) {
         switch (c) {
         case 'h':
             print_usage(argv);
@@ -121,6 +123,9 @@ int main(int argc, char *argv[]) {
             break;
         case 'v':
             verbosity = GLL_INFO;
+            break;
+        case 'u':
+            unsafe = 1;
             break;
         case 'e':
             readenv = 1;
@@ -141,6 +146,13 @@ int main(int argc, char *argv[]) {
     }
     
     gl_cmd = goatee_logger_new(verbosity);
+    
+    if (unsafe) {
+        L = luaL_newstate();
+        luaL_openlibs(L);
+        /* push global env to stack */
+        lua_getglobal(L, "_G");
+    }
     
     if (readenv) {
         int i = 0;
