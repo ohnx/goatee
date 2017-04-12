@@ -3,7 +3,7 @@ CFLAGS=$(INCLUDES) -Wall -Werror -pedantic
 LUA_VERSION=5.2.4
 LIBFLAGS=-Llibs/ -lstring -llua -lm -ldl
 
-OBJ=objs/goatee_gen.o objs/goatee_run.o objs/goatee_cfg.o objs/goatee_logger.o objs/hashmap.o
+OBJ=objs/goatee_gen.o objs/goatee_run.o objs/goatee_cfg.o objs/goatee_logger.o objs/goatee_hashmap.o
 OUTPUT=libgoatee.a
 
 default: $(OUTPUT)
@@ -76,8 +76,8 @@ clean:
 #                             COMMAND LINE STUFF                               #
 ################################################################################
 
-goatee: $(OUTPUT) objs/goatee_cmdline.o objs/hashmap.o
-	$(CC) objs/goatee_cmdline.o objs/hashmap.o -L. -lgoatee $(LIBFLAGS) -o goatee
+goatee: $(OUTPUT) objs/goatee_cmdline.o objs/goatee_hashmap.o
+	$(CC) objs/goatee_cmdline.o objs/goatee_hashmap.o -L. -lgoatee $(LIBFLAGS) -o goatee
 
 ################################################################################
 #                                 TEST STUFF                                   #

@@ -5,7 +5,7 @@
 #include "lualib.h"
 #include "lauxlib.h"
 #include "goatee_logger.h"
-#include "hashmap.h"
+#include "goatee_hashmap.h"
 
 void goatee_setup_basic_table(lua_State *L);
 string goatee_dump_file(const char *filename);

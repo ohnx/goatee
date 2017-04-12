@@ -1,4 +1,4 @@
-#include "hashmap.h"
+#include "goatee_hashmap.h"
 
 #define TOPBIT (1 << 7)
 #define POLYNOMIAL 0x9b

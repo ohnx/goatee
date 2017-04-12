@@ -5,7 +5,7 @@
 #include "goatee_run.h"
 #include "goatee_logger.h"
 #include "goatee_cfg.h"
-#include "hashmap.h"
+#include "goatee_hashmap.h"
 
 #define __VERSION "v1.1.0 (happy llama)"
 
