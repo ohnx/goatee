@@ -1,30 +1,30 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifndef __HASHMAP_INC
-#define __HASHMAP_INC
+#ifndef __GOATEE_HASHMAP_INC
+#define __GOATEE_HASHMAP_INC
 
-typedef struct _hashmap_entry {
+typedef struct _goatee_hashmap_entry {
     char *key;
     void *value;
-} hashmap_entry;
+} goatee_hashmap_entry;
 
-typedef struct _hashmap_entry_list {
+typedef struct _goatee_hashmap_entry_list {
     int vlen;
     int vroom;
-    hashmap_entry *values;
-} hashmap_entry_list;
+    goatee_hashmap_entry *values;
+} goatee_hashmap_entry_list;
 
-typedef struct _hashmap {
-    hashmap_entry_list *buckets;
-} hashmap;
+typedef struct _goatee_hashmap {
+    goatee_hashmap_entry_list *buckets;
+} goatee_hashmap;
 
-typedef int (*hashmap_iterator)(void *context, const char *key, void *value);
+typedef int (*goatee_hashmap_iterator)(void *context, const char *key, void *value);
 
-hashmap *hashmap_new();
-void hashmap_put(hashmap *in, const char *key, void *value);
-void *hashmap_get(hashmap *in, const char *key);
-int hashmap_iterate(hashmap *in, hashmap_iterator iter, void *context);
-void hashmap_empty(hashmap *in);
-void hashmap_destroy(hashmap *in);
+goatee_hashmap *goatee_hashmap_new();
+void goatee_hashmap_put(goatee_hashmap *in, const char *key, void *value);
+void *goatee_hashmap_get(goatee_hashmap *in, const char *key);
+int goatee_hashmap_iterate(goatee_hashmap *in, goatee_hashmap_iterator iter, void *context);
+void goatee_hashmap_empty(goatee_hashmap *in);
+void goatee_hashmap_destroy(goatee_hashmap *in);
 #endif

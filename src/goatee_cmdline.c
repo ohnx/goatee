@@ -42,7 +42,7 @@ void print_usage(char *argv[]) {
     printf("-----\nExample invocation:\n%s -ei file.in file.out\n", argv[0]);
 }
 
-int hashmap_iterator_printf(void *context, const char *key, void *value) {
+int goatee_hashmap_iterator_printf(void *context, const char *key, void *value) {
     lua_State *L = (lua_State *)context;
     char *keyFirst, *keySecond, *dotLocation;
     
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
     
     if (readenv) {
         int i = 0;
-        hashmap *envs = hashmap_new();
+        goatee_hashmap *envs = goatee_hashmap_new();
         char *poseq;
         
         if (!L) {
@@ -169,19 +169,19 @@ int main(int argc, char *argv[]) {
             poseq = strchr(environ[i], '=');
             
             *poseq = '\0';
-            hashmap_put(envs, environ[i], poseq+1);
+            goatee_hashmap_put(envs, environ[i], poseq+1);
             *poseq = '=';
             
             i++;
         }
         
-        hashmap_iterate(envs, hashmap_iterator_printf, L);
-        hashmap_destroy(envs);
+        goatee_hashmap_iterate(envs, goatee_hashmap_iterator_printf, L);
+        goatee_hashmap_destroy(envs);
     }
     
     if (fin) {
         char *tmp;
-        hashmap *vars;
+        goatee_hashmap *vars;
 
         if (!L) {
             L = luaL_newstate();
@@ -195,8 +195,8 @@ int main(int argc, char *argv[]) {
         vars = goatee_parse_file(tmp);        
         expect(vars != NULL, "Failed reading file!");
         
-        hashmap_iterate(vars, hashmap_iterator_printf, L);
-        hashmap_destroy(vars);
+        goatee_hashmap_iterate(vars, goatee_hashmap_iterator_printf, L);
+        goatee_hashmap_destroy(vars);
         string_free(tmp);
     }
     

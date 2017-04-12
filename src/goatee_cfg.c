@@ -59,8 +59,8 @@ void goatee_setup_basic_table(lua_State *L) {
     lua_setfield(L, -2, "tonumber");
 }
 
-hashmap *goatee_parse_file(char *in) {
-    hashmap *vars = hashmap_new();
+goatee_hashmap *goatee_parse_file(char *in) {
+    goatee_hashmap *vars = goatee_hashmap_new();
     char *poseq, *posnl = in, *cpos = in;
 
     while (1) {
@@ -75,8 +75,8 @@ hashmap *goatee_parse_file(char *in) {
             if (poseq == NULL) return NULL;
             *poseq = '\0';
 
-            /* add to hashmap */
-            hashmap_put(vars, cpos, poseq+1);
+            /* add to goatee_hashmap */
+            goatee_hashmap_put(vars, cpos, poseq+1);
             break;
         }
         
@@ -89,11 +89,11 @@ hashmap *goatee_parse_file(char *in) {
         if (poseq == NULL) return NULL;
         *poseq = '\0';
         
-        /* add to hashmap */
-        hashmap_put(vars, cpos, poseq+1);
+        /* add to goatee_hashmap */
+        goatee_hashmap_put(vars, cpos, poseq+1);
         cpos = ++posnl;
     }
     
-    /* return hashmap */
+    /* return goatee_hashmap */
     return vars;
 }

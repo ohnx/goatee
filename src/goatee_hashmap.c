@@ -61,15 +61,15 @@ unsigned char crc8_block(const unsigned char *bytes, long byteLen) {
     return remainder;
 }
 
-hashmap *hashmap_new() {
-    hashmap *ret;
-    hashmap_entry_list *buckets;
+goatee_hashmap *goatee_hashmap_new() {
+    goatee_hashmap *ret;
+    goatee_hashmap_entry_list *buckets;
 
     if (!tinit) crc8_init();
 
     /* clear initial values */
-    ret = calloc(1, sizeof(hashmap));
-    buckets = calloc(HMSIZE, sizeof(hashmap_entry));
+    ret = calloc(1, sizeof(goatee_hashmap));
+    buckets = calloc(HMSIZE, sizeof(goatee_hashmap_entry));
     
     if (ret == NULL || buckets == NULL) return NULL;
     
@@ -77,10 +77,10 @@ hashmap *hashmap_new() {
     return ret;
 }
 
-void hashmap_put(hashmap *in, const char *key, void *value) {
+void goatee_hashmap_put(goatee_hashmap *in, const char *key, void *value) {
     unsigned char crc8;
-    hashmap_entry_list *hel;
-    hashmap_entry *he;
+    goatee_hashmap_entry_list *hel;
+    goatee_hashmap_entry *he;
     
     /* get hash value */
     crc8 = crc8_block((const unsigned char *)key, (long)strlen(key));
@@ -89,7 +89,7 @@ void hashmap_put(hashmap *in, const char *key, void *value) {
     /* reallocate memory if necessary */
     if (hel->vroom < ++(hel->vlen)) {
         hel->vroom = (hel->vroom == 0 ? 4 : hel->vroom*2);
-        he = realloc(hel->values, hel->vroom * sizeof(hashmap_entry));
+        he = realloc(hel->values, hel->vroom * sizeof(goatee_hashmap_entry));
 
         if (he == NULL) {
             return; /* TODO: Throw exception */
@@ -98,7 +98,7 @@ void hashmap_put(hashmap *in, const char *key, void *value) {
         hel->values = he;
     }
     
-    /* jump to end of hashmap entry list */
+    /* jump to end of goatee_hashmap entry list */
     he = &hel->values[hel->vlen-1];
     
     he->key = strdup(key);
@@ -107,10 +107,10 @@ void hashmap_put(hashmap *in, const char *key, void *value) {
     /* success */
 }
 
-void *hashmap_get(hashmap *in, const char *key) {
+void *goatee_hashmap_get(goatee_hashmap *in, const char *key) {
     unsigned char crc8;
-    hashmap_entry_list *hel;
-    hashmap_entry *he;
+    goatee_hashmap_entry_list *hel;
+    goatee_hashmap_entry *he;
     int i;
     
     /* get hash value */
@@ -129,9 +129,9 @@ void *hashmap_get(hashmap *in, const char *key) {
     return he->value;
 }
 
-int hashmap_iterate(hashmap *in, hashmap_iterator iter, void *context) {
-    hashmap_entry_list *hel;
-    hashmap_entry *he;
+int goatee_hashmap_iterate(goatee_hashmap *in, goatee_hashmap_iterator iter, void *context) {
+    goatee_hashmap_entry_list *hel;
+    goatee_hashmap_entry *he;
     int i, j;
     
     /* loop through all the buckets */
@@ -151,9 +151,9 @@ int hashmap_iterate(hashmap *in, hashmap_iterator iter, void *context) {
     return 0;
 }
 
-void hashmap_empty(hashmap *in) {
-    hashmap_entry_list *hel;
-    hashmap_entry *he;
+void goatee_hashmap_empty(goatee_hashmap *in) {
+    goatee_hashmap_entry_list *hel;
+    goatee_hashmap_entry *he;
     int i, j;
     
     /* loop through all the buckets */
@@ -176,9 +176,9 @@ void hashmap_empty(hashmap *in) {
     }
 }
 
-void hashmap_destroy(hashmap *in) {
-    /* empty hashmap */
-    hashmap_empty(in);
+void goatee_hashmap_destroy(goatee_hashmap *in) {
+    /* empty goatee_hashmap */
+    goatee_hashmap_empty(in);
     
     /* clean up bucket storage */
     free(in->buckets);
