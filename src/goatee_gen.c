@@ -152,7 +152,7 @@ static string goatee_gen_internal(const string in, struct handlerInfo *modifiers
             } else if (modifiers[i].start == 0) { /* could not exist... */
                 /* unrecognized starting */
                 tmp = string_new();
-                tmp = string_copy(tmp, &in[b-1], 0, 3);
+                tmp = string_copy(tmp, &in[b], 0, 2);
                 out = goatee_gen_handle_normal(out, tmp);
                 string_free(tmp);
                 pos = b+2;
