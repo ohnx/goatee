@@ -59,7 +59,7 @@ string goatee_gen_handle_include(string all, string in) {
     ));
 }
 
-static string goatee_gen_handle_normal(string all, string in) {
+string goatee_gen_handle_normal(string all, string in) {
     return string_append(all, string_temporary(
         string_appendv(3, "_ret[#_ret+1] = [[\n", in, "]]\n")
     ));

@@ -1,4 +1,4 @@
-{+  tests/includetest.lua +}
+{+ includetest.lua +}
 I have some foods in my backpack:
 {% for _,v in ipairs(foods) do %}* {{ v }}
 {% end %}

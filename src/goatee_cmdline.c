@@ -19,6 +19,72 @@ extern char **environ;
 
 static goatee_logger *gl_cmd = NULL;
 
+extern string goatee_gen_handle_comment(string all, string in);
+extern string goatee_gen_handle_exec(string all, string in);
+extern string goatee_gen_handle_var(string all, string in);
+extern string goatee_gen_handle_normal(string all, string in);
+extern string goatee_gen_noHeader(const string in, struct handlerInfo *modifiers, goatee_logger *glin);
+string goatee_gen_handle_include_custom(string all, string in);
+
+string dir_prefix;
+static struct handlerInfo customModifiers[] = {
+    {'#', '#', &goatee_gen_handle_comment},
+    {'%', '%', &goatee_gen_handle_exec},
+    {'{', '}', &goatee_gen_handle_var},
+    {'+', '+', &goatee_gen_handle_include_custom},
+    {0,0, NULL}
+};
+
+string goatee_gen_handle_include_custom(string all, string in) {
+    string fileIn, tmp, tmp3;
+    char *tmp2;
+    
+    if (!dir_prefix) {
+        /* Disabled including files */
+        gl_cmd->log(gl_cmd, GLL_ERR, "File including has been disabled, but template file tried to include a file!");
+        return all;
+    }
+    
+    tmp2 = goatee_trim_spaces(in);
+    if (*tmp2 == '.') {
+         /* Template tried to jump out of jail */
+        gl_cmd->log(gl_cmd, GLL_WARN, "Template file tried to include a file in parent directory!");
+        return all;
+    }
+    
+    tmp = string_append(string_dup(dir_prefix), string_temporary(string_mknew(tmp2)));
+    free(tmp2);
+    fileIn = goatee_dump_file(tmp);
+    
+    tmp3 = string_append(string_mknew("Attemping to load "), string_temporary(string_mknew(tmp)));
+    
+    if (gl_cmd->level <= GLL_INFO) {
+        gl_cmd->log(gl_cmd, GLL_INFO, tmp3);
+    }
+    
+    if (fileIn == NULL) {
+        if (gl_cmd->level > GLL_INFO) {
+            gl_cmd->log(gl_cmd, GLL_WARN, tmp3);
+        }
+
+        gl_cmd->log(gl_cmd, GLL_WARN, "File not found.");
+    
+        string_free(tmp);
+        string_free(tmp3);
+        return all;
+    }
+    
+    string_free(tmp);
+    string_free(tmp3);
+    
+    tmp = goatee_gen_noHeader(fileIn, customModifiers, gl_cmd);
+    string_free(fileIn);
+    
+    return string_append(all, string_temporary(
+        string_appendv(3, "\n", string_temporary(tmp), "\n")
+    ));
+}
+
 static void error(char *str) {
     goatee_logger_log(gl_cmd, GLL_FATAL, str);
 }
@@ -34,6 +100,8 @@ void print_usage(char *argv[]) {
     printf("-v\n\tBe verbose (Print logs to stdout even if no error)\n");
     printf("-e\n\tRead environment variables into global table\n");
     printf("-l\n\tPrint only the output lua code from goatee_gen; do not run it.\n");
+    printf("-p\n\tPrefix includes with something to force trap within a directory.\n"\
+           "\tSet to NULL to disable including other files.\n");
     printf("-u\n\tUnsafe mode; allow all standard lua functions to be run from without a template.\n"\
            "\tTemplates normally run under a sandboxed environment; for help, please see https://masonx.ca/goatee\n");
     printf("-f <filename>\n\tRead contents of file into a global table.\n" \
@@ -108,12 +176,12 @@ int goatee_hashmap_iterator_printf(void *context, const char *key, void *value) 
 
 int main(int argc, char *argv[]) {
     char *in = NULL, *out = NULL, *outFinal = NULL, *fin = NULL, *fparse = NULL, *outFile = NULL;
-    int readenv = 0, verbosity = GLL_ERR, onlygen = 0, unsafe = 0;
+    int readenv = 0, verbosity = GLL_ERR, onlygen = 0, unsafe = 0, useCustM = 0;
     lua_State *L = NULL;
     FILE *of;
     char c;
     
-    while ((c = getopt(argc, argv, "hluvef:i:")) != -1) {
+    while ((c = getopt(argc, argv, "hlup:vef:i:")) != -1) {
         switch (c) {
         case 'h':
             print_usage(argv);
@@ -135,6 +203,11 @@ int main(int argc, char *argv[]) {
             break;
         case 'i':
             fparse = optarg;
+            break;
+        case 'p':
+            useCustM = 1;
+            if (!strcmp(optarg, "NULL")) dir_prefix = NULL;
+            else dir_prefix = string_mknew(optarg);
             break;
         case '?':
             fprintf(stderr, "Unknown option character `%c`.\n", optopt);
@@ -230,7 +303,10 @@ int main(int argc, char *argv[]) {
         outFile = argv[optind];
 
     /* generate the template string that will get run through lua */
-    out = goatee_gen(in, NULL, gl_cmd);
+    if (!useCustM)
+        out = goatee_gen(in, NULL, gl_cmd);
+    else
+        out = goatee_gen(in, customModifiers, gl_cmd);
     expect(out != NULL, "Failed to compile template into lua code!");
 
     /* that's all that's done so far... print out output */
