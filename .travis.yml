@@ -2,7 +2,27 @@ language: c
 compiler:
   - gcc
   - clang
-script: make test
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "H24rMy9aoG0Vb8xseJhiZDIIMblku6dX6nWtAyozpmBwON04aKjZkl1o0m7Iv6CPhR9oT7VBK2rUHA1KwdqNqOmkiG/ZdaJgmLc4KIra7t7/mAWDN4v2zca0toPzpG9VdnWBD4vjei/hC/dGsK7RA3HGEzMM5P6fl4vj5zNsJzliBva2CbHGvzSsJpGFbAD2PN/DxCQlWaemQI0eScfbNc16IOYPSlZ5tiQQRQdOCDHOJcxZ6EPVSiH204RF5Uw2TSYqoEnEl+qfNPPOv0Vf742EH1u3exGLCvxGQ0Oo+icrUB2BwLE+4PAomxA1PBboqnJ/kH3+OLy21ltkDb4lJvY7ncCdpBhhAGHpnYxVj9BU9wToknBWYbq0onxrH/zNOAiQ+tA3tX0ueglO2NvZ34YX7lN5+9uQSvQjaVOQi3P6cQQRsmXiO3/C8V6yUJBSpQu0JWlrNENtHJGQ4imZiIxL91roNJm84jNrSxLmsRlKLwJT3mpCOquvjzPFQwtPW2MRfCmHXs+V0VtsCUe645LVPJVjGJZ3Lq9OK2gzU21MyPYIJ2wprl4KA8fFH/RekH+v3LhtG/DSYfE7h30/Z7G6kHBBDNr+icJ6rIUywycM1sfziHM0bltma9E3NZ6N81n/voFNQsv+cnOoOORMIbaB6gj1gZDvWHS8qHtyvl0="
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: "ohnx/goatee"
+      description: "Build submitted via Travis CI"
+    notification_email: me@masonx.ca
+    build_command_prepend: "echo hi"
+    build_command:   "make"
+    branch_pattern: coverity_scan
+
+script:
+  - make test
+
 notifications:
   email: false
   irc:
